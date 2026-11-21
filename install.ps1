@@ -28,6 +28,11 @@ if ($LASTEXITCODE -ne 0) {
     throw 'fefo-install: Python 3.10+ is required'
 }
 
+if (-not (Get-Command opencode -ErrorAction SilentlyContinue)) {
+    Write-Warning 'opencode not found. Install OpenCode 2.3+ first: https://opencode.ai'
+    Write-Warning 'fefo build needs it; deterministic commands still work.'
+}
+
 $tmp = Join-Path ([IO.Path]::GetTempPath()) ('fefo-install-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Force -Path $tmp | Out-Null
 try {
@@ -56,6 +61,7 @@ New-Item -ItemType Directory -Force -Path $BinDir | Out-Null
 $shim = @"
 @echo off
 setlocal
+set "PYTHONUTF8=1"
 set "FEFO_HOME=$InstallDir"
 where py >nul 2>nul
 if not errorlevel 1 (

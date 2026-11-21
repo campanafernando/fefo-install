@@ -18,8 +18,8 @@ Windows PowerShell (`cmd.exe` uses the same `fefo.cmd` shim afterwards):
 irm https://raw.githubusercontent.com/campanafernando/fefo-install/main/install.ps1 | iex
 ```
 
-Requirements: Git, Python 3.10+, OpenCode 2.3.0+. The installer is per-user and
-needs no `sudo`.
+Requirements: Git, Python 3.10+, OpenCode 2.3.0+. Install OpenCode first; FEFO
+does not redistribute it. The installer is per-user and needs no `sudo`.
 
 ## What it does
 
@@ -42,7 +42,11 @@ fefo build
 
 `fefo build` (or `fefo .`) copies the agents/skills skeleton into the current
 directory, scans the direct Git children, infers role, stack and commands, and
-writes the OpenCode, Claude, Cursor and Copilot adapters.
+writes the OpenCode, Claude, Cursor and Copilot adapters. It then calls your
+installed OpenCode with a model picked like `fefo doit` (cached free model;
+override with `BUILD_MODEL` or `--model`) to tune the manifest, `AGENTS.local.md`
+and the vault notes following FEFO's rules. Use `fefo build --no-ai` for the
+deterministic result only.
 
 Other commands:
 

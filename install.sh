@@ -23,6 +23,12 @@ command -v "$PYTHON" >/dev/null 2>&1 || fail "python3 not found; install Python 
 "$PYTHON" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' \
   || fail "Python 3.10+ is required"
 
+if ! command -v opencode >/dev/null 2>&1; then
+  printf 'fefo-install: warning: opencode not found. Install OpenCode 2.3+ first:\n' >&2
+  printf '  https://opencode.ai\n' >&2
+  printf '  fefo build needs it; deterministic commands still work.\n' >&2
+fi
+
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/fefo-install.XXXXXX")
 trap 'rm -rf "$tmp"' EXIT INT TERM
 
