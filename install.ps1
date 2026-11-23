@@ -7,6 +7,7 @@ $Ref = if ($env:FEFO_REF) { $env:FEFO_REF } else { 'main' }
 $InstallDir = if ($env:FEFO_INSTALL_DIR) { $env:FEFO_INSTALL_DIR } else { Join-Path $env:LOCALAPPDATA 'fefo' }
 $BinDir = if ($env:FEFO_BIN_DIR) { $env:FEFO_BIN_DIR } else { Join-Path $env:USERPROFILE '.local\bin' }
 $Url = if ($env:FEFO_ZIP_URL) { $env:FEFO_ZIP_URL } else { "https://codeload.github.com/$Repo/zip/$Ref" }
+$UpdateUrl = if ($env:FEFO_UPDATE_URL) { $env:FEFO_UPDATE_URL } else { 'https://opencode.ai/update/api/latest/cli/npm' }
 
 if (-not $InstallDir -or $InstallDir -eq $env:USERPROFILE) {
     throw "fefo-install: refusing unsafe install dir: $InstallDir"
@@ -29,8 +30,24 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 if (-not (Get-Command opencode -ErrorAction SilentlyContinue)) {
-    Write-Warning 'opencode not found. Install OpenCode 2.3+ first: https://opencode.ai'
-    Write-Warning 'fefo build needs it; deterministic commands still work.'
+    throw 'fefo-install: opencode not found. Install the latest OpenCode first: https://opencode.ai'
+}
+
+if ($env:FEFO_SKIP_UPDATE_CHECK -ne '1') {
+    $installed = [string]((& opencode --version 2>$null) -replace '.*\s', '' -replace '^v', '')
+    if (-not $installed) {
+        throw 'fefo-install: could not determine the OpenCode version; run: opencode upgrade'
+    }
+    $latest = $null
+    try {
+        $info = Invoke-RestMethod -Uri $UpdateUrl -TimeoutSec 10
+        $latest = [string]$info.version
+    } catch {
+        Write-Warning 'could not check the latest OpenCode version; continuing.'
+    }
+    if ($latest -and ([version]$installed -lt [version]$latest)) {
+        throw "fefo-install: OpenCode $installed is older than the latest $latest; run: opencode upgrade"
+    }
 }
 
 $tmp = Join-Path ([IO.Path]::GetTempPath()) ('fefo-install-' + [guid]::NewGuid().ToString('N'))

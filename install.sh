@@ -9,6 +9,7 @@ INSTALL_DIR=${FEFO_INSTALL_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/fefo}
 BIN_DIR=${FEFO_BIN_DIR:-${XDG_BIN_HOME:-$HOME/.local/bin}}
 URL=${FEFO_TARBALL_URL:-https://codeload.github.com/$REPO/tar.gz/$REF}
 PYTHON=${PYTHON:-python3}
+UPDATE_URL=${FEFO_UPDATE_URL:-https://opencode.ai/update/api/latest/cli/npm}
 
 fail() {
   printf 'fefo-install: %s\n' "$*" >&2
@@ -24,9 +25,32 @@ command -v "$PYTHON" >/dev/null 2>&1 || fail "python3 not found; install Python 
   || fail "Python 3.10+ is required"
 
 if ! command -v opencode >/dev/null 2>&1; then
-  printf 'fefo-install: warning: opencode not found. Install OpenCode 2.3+ first:\n' >&2
-  printf '  https://opencode.ai\n' >&2
-  printf '  fefo build needs it; deterministic commands still work.\n' >&2
+  fail "opencode not found. Install the latest OpenCode first: https://opencode.ai"
+fi
+
+if [ "${FEFO_SKIP_UPDATE_CHECK:-0}" != "1" ]; then
+  installed=$(opencode --version 2>/dev/null || true)
+  installed=${installed##* }
+  installed=${installed#v}
+  [ -n "$installed" ] || fail "could not determine the OpenCode version; run: opencode upgrade"
+  latest=""
+  if command -v curl >/dev/null 2>&1; then
+    latest=$(curl -fsSL --max-time 10 "$UPDATE_URL" 2>/dev/null \
+      | sed -n 's/.*"version":"\([^"]*\)".*/\1/p' | head -1)
+  elif command -v wget >/dev/null 2>&1; then
+    latest=$(wget -qO- --timeout=10 "$UPDATE_URL" 2>/dev/null \
+      | sed -n 's/.*"version":"\([^"]*\)".*/\1/p' | head -1)
+  fi
+  if [ -n "$latest" ]; then
+    "$PYTHON" - "$installed" "$latest" <<'PY' || fail "OpenCode $installed is older than the latest $latest; run: opencode upgrade"
+import sys
+def parts(value):
+    return tuple(int(p) for p in value.split("-")[0].split(".") if p.isdigit())
+raise SystemExit(0 if parts(sys.argv[1]) >= parts(sys.argv[2]) else 1)
+PY
+  else
+    printf 'fefo-install: warning: could not check the latest OpenCode version; continuing.\n' >&2
+  fi
 fi
 
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/fefo-install.XXXXXX")
