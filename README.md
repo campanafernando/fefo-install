@@ -18,8 +18,20 @@ Windows PowerShell (`cmd.exe` uses the same `fefo.cmd` shim afterwards):
 irm https://raw.githubusercontent.com/campanafernando/fefo-install/main/install.ps1 | iex
 ```
 
-Requirements: Git, Python 3.10+, OpenCode 2.3.0+. Install OpenCode first; FEFO
-does not redistribute it. The installer is per-user and needs no `sudo`.
+On Windows, OpenCode 2.4 shows session status in the taskbar.
+
+Requirements: Git, Python 3.10+, OpenCode 2.3.0+ (2.4.0 recommended). Install
+OpenCode first; FEFO does not redistribute it. The installer is per-user and
+needs no `sudo`.
+
+## OpenCode 2.4
+
+The installer is unchanged: `fefo build` uses whichever OpenCode is already
+installed. The built-in browser, automations, video generation, the new TUI and
+the Windows taskbar status are OpenCode features, not FEFO ones. A workspace that
+should not run unattended jobs can set `"automations": false` in the `opencode`
+block of `.fefo/workspace.json`; FEFO deep-merges that block into
+`opencode.json`.
 
 ## What it does
 
