@@ -18,9 +18,9 @@ Windows PowerShell (`cmd.exe` uses the same `fefo.cmd` shim afterwards):
 irm https://raw.githubusercontent.com/campanafernando/fefo-install/main/install.ps1 | iex
 ```
 
-On Windows, OpenCode 2.4+ shows session status in the taskbar.
+On Windows, OpenCode 2.4.1+ shows session status in the taskbar.
 
-Requirements: Git, Python 3.10+, and OpenCode 2.4.0+ (latest). Install OpenCode
+Requirements: Git, Python 3.10+, and OpenCode 2.4.1+ (latest). Install OpenCode
 first; FEFO does not redistribute it. The installer refuses to run when
 `opencode` is missing or older than the current release.
 
