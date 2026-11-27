@@ -1,104 +1,14 @@
-# fefo-install
+# fefo-install (retired)
 
-Separate installer for [FEFO](https://github.com/campanafernando/FEFO). FEFO is
-the workspace reference and the source of the generator, agents and skills; this
-repository only distributes it and links the `fefo` CLI.
-
-## Install
-
-Linux, macOS and WSL:
+FEFO now installs itself:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/campanafernando/fefo-install/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/campanafernando/FEFO/main/install.zsh | zsh
 ```
 
-Windows PowerShell (`cmd.exe` uses the same `fefo.cmd` shim afterwards):
+`install.sh` in this repository only forwards to that script (flags included), so
+old one-liners such as `curl -fsSL …/fefo-install/main/install.sh | sh` keep
+working. FEFO needs zsh on Linux or macOS and the latest OpenCode; Windows and
+PowerShell are no longer supported.
 
-```powershell
-irm https://raw.githubusercontent.com/campanafernando/fefo-install/main/install.ps1 | iex
-```
-
-On Windows, OpenCode 2.4.1+ shows session status in the taskbar.
-
-Requirements: Git, Python 3.10+, and OpenCode 2.4.1+ (latest). Install OpenCode
-first; FEFO does not redistribute it. The installer refuses to run when
-`opencode` is missing or older than the current release.
-
-## OpenCode version gate
-
-The installer reads the latest CLI version from
-`https://opencode.ai/update/api/latest/cli/npm` and compares it with
-`opencode --version`. If the installed CLI is older, it stops and asks for
-`opencode upgrade`. `FEFO_SKIP_UPDATE_CHECK=1` bypasses the check only for CI or
-offline use.
-
-`fefo build` and the workspace commands apply the same rule; see the FEFO
-version policy. The installer is otherwise unchanged.
-
-## What it does
-
-- Downloads FEFO to `~/.local/share/fefo` (`%LOCALAPPDATA%\fefo` on Windows).
-- Links `fefo` into `~/.local/bin` (`%USERPROFILE%\.local\bin\fefo.cmd`).
-- Adds that directory to PATH when needed (zsh: `~/.zshrc`, bash: `~/.bashrc`).
-- Verifies the CLI runs.
-
-Re-running the installer replaces the downloaded template. Workspaces keep their
-own `.fefo/workspace.json`, `opencode.json`, vault and Git history.
-
-## Use
-
-```sh
-mkdir -p ~/EXEMPLO && cd ~/EXEMPLO
-git clone <repository> exemplo-api
-git clone <repository> exemplo-web
-fefo build
-```
-
-`fefo build` (or `fefo .`) copies the agents/skills skeleton into the current
-directory, scans the direct Git children, infers role, stack and commands, and
-writes the OpenCode, Claude, Cursor and Copilot adapters. It then calls your
-installed OpenCode with a model picked like `fefo doit` (cached free model;
-override with `BUILD_MODEL` or `--model`) to tune the manifest, `AGENTS.local.md`
-and the vault notes following FEFO's rules. Use `fefo build --no-ai` for the
-deterministic result only.
-
-Other commands:
-
-```sh
-fefo status
-fefo add ../worker --role data
-fefo sync --check
-fefo doctor
-fefo cmg
-fefo bng
-fefo doit "task"
-```
-
-## Configuration
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `FEFO_REF` | `main` | Branch, tag or commit of FEFO to install |
-| `FEFO_REPO` | `campanafernando/FEFO` | GitHub repository |
-| `FEFO_INSTALL_DIR` | `~/.local/share/fefo` / `%LOCALAPPDATA%\fefo` | Download target |
-| `FEFO_BIN_DIR` | `~/.local/bin` / `%USERPROFILE%\.local\bin` | CLI shim location |
-| `FEFO_TARBALL_URL` / `FEFO_ZIP_URL` | GitHub archive | Mirror or local archive |
-| `FEFO_NO_MODIFY_PATH` | unset | Set to `1` to skip PATH changes |
-| `PYTHON` | `python3` | Python interpreter (Unix) |
-
-Pin a release:
-
-```sh
-FEFO_REF=v0.5.0 curl -fsSL https://raw.githubusercontent.com/campanafernando/fefo-install/main/install.sh | sh
-```
-
-## Why a separate repository
-
-The installer changes more often than the workspace contract. Keeping it apart
-lets the one-liner, PATH handling, Windows shim and release pinning evolve
-without touching the template that existing workspaces depend on. FEFO remains a
-single source of truth; this repository downloads it.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+See [FEFO](https://github.com/campanafernando/FEFO) for everything else.
