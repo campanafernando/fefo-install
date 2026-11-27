@@ -1,0 +1,43 @@
+#!/usr/bin/env zsh
+emulate -L zsh
+setopt local_options
+
+if (( $# == 0 )); then
+  exit 0
+fi
+
+if [[ "$1" == "--version" || "$1" == "version" ]]; then
+  print "opencode v99.0.0"
+  exit 0
+fi
+
+if [[ "$1" == "models" ]]; then
+  print -l "opencode-go/beam-free" "opencode-go/hungerg-free" "opencode/deepseek-v4.1-flash-free" "opencode/paid-model"
+  exit 0
+fi
+
+if [[ "$1" == "plugin" && "${2:-}" == "list" ]]; then
+  print "ponytail @dietrichgebert/ponytail"
+  exit 0
+fi
+
+if [[ "$1" == "run" ]]; then
+  if [[ "${FEFO_TEST_AGENT_RUN:-0}" == "1" ]]; then
+    mkdir -p .opencode/agents
+    cat > .opencode/agents/test-specialist.md <<'EOF'
+---
+description: test specialist
+mode: subagent
+---
+body
+EOF
+  fi
+  exit 0
+fi
+
+if [[ "$1" == "debug" && "${2:-}" == "config" ]]; then
+  print "[]"
+  exit 0
+fi
+
+exit 0
